@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ms Lê Hằng English - Interactive Quiz Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #8854C0;
+            --secondary-color: #FDCB6E;
+            --accent-color: #00C9A7;
+            --correct-color: #00D26A;
+            --wrong-color: #FF4757;
+            --text-color: #2D3436;
+            --bg-card: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(-45deg, #8854C0, #FDCB6E, #00C9A7, #E8505B);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* SVG Dynamic Theme Pattern Generated for Culture & Ethnic Theme 🎏🌾🌟 */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            opacity: 0.12;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ctext x='10' y='30' font-size='20'%3E🎏%3C/text%3E%3Ctext x='40' y='70' font-size='20'%3E🌾%3C/text%3E%3Ctext x='50' y='20' font-size='18'%3E🌟%3C/text%3E%3C/svg%3E");
+            animation: floatingPattern 40s linear infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes floatingPattern {
+            0% { background-position: 0 0; }
+            100% { background-position: 800px 800px; }
+        }
+
+        /* Top Control Bar */
+        .top-bar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 10;
+            border-bottom: 3px solid #E0E0E0;
+        }
+
+        .teacher-brand h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            font-weight: 900;
+        }
+
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timer-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #6c3da3;
+            transition: all 0.2s;
+        }
+
+        .timer-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #6c3da3;
+        }
+
+        .timer-display {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #2D3436;
+            background: #E8F0FE;
+            padding: 6px 15px;
+            border-radius: 12px;
+            border: 2px solid #B4C6E7;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Split Screen Layout */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            z-index: 5;
+        }
+
+        .panel {
+            width: 50%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 25px;
+            scroll-behavior: smooth;
+        }
+
+        .left-panel {
+            border-right: 4px dashed rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(5px);
+        }
+
+        .right-panel {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Tip Alert Banner */
+        .alert-banner {
+            background: #FFF3CD;
+            border: 3px dashed #FFC107;
+            border-radius: 16px;
+            padding: 12px 18px;
+            color: #856404;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 0 #E0A800;
+            line-height: 1.4;
+        }
+
+        /* Cards Design */
+        .section-title {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 1rem;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 0 #6c3da3;
+            display: inline-block;
+        }
+
+        .content-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 22px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 0px rgba(0, 0, 0, 0.1);
+            border: 3px solid #E0E0E0;
+            position: relative;
+        }
+
+        .passage-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-color);
+            font-weight: 500;
+            white-space: pre-line;
+        }
+
+        /* Interactive Translation Box */
+        .trans-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-top: 12px;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #009e83;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .trans-btn:hover { transform: scale(1.02); }
+        .trans-btn:active { transform: translateY(3px); box-shadow: 0 0px 0 #009e83; }
+
+        .translation-content {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            background: #E0F7FA;
+            border-left: 5px solid var(--accent-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #006064;
+            line-height: 1.5;
+        }
+
+        /* Glossary Table Design */
+        .glossary-box {
+            margin-top: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #D1C4E9;
+        }
+
+        .glossary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        .glossary-table th {
+            background: #EDE7F6;
+            color: #5E35B1;
+            padding: 8px 12px;
+            font-weight: 900;
+        }
+
+        .glossary-table td {
+            background: #FFFFFF;
+            padding: 8px 12px;
+            border-bottom: 1px solid #EDE7F6;
+            color: #424242;
+        }
+
+        .glossary-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Questions Style */
+        .question-block {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed #E0E0E0;
+        }
+
+        .question-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .question-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-color);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        /* Inline Interactive Ellipsis for Fill In Blanks */
+        .inline-ellipsis {
+            display: inline-block;
+            background: #FFE0B2;
+            color: #E65100;
+            padding: 2px 12px;
+            border-radius: 6px;
+            font-weight: 900;
+            cursor: pointer;
+            border: 1px dashed #FB8C00;
+            margin: 0 4px;
+            transition: all 0.2s;
+        }
+        .inline-ellipsis:hover {
+            background: #FFCC80;
+        }
+
+        /* Options Grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .option-btn {
+            background: #F8F9FA;
+            border: 3px solid #E0E0E0;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #E0E0E0;
+            position: relative;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            transform: scale(1.01) translateY(-2px);
+            background: #F1F3F5;
+            box-shadow: 0 6px 0 #D0D0D0;
+        }
+
+        .option-btn:active:not(.disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #D0D0D0;
+        }
+
+        /* Interaction Colors */
+        .option-btn.correct {
+            background-color: var(--correct-color) !important;
+            border-color: #00B359 !important;
+            color: white !important;
+            box-shadow: 0 4px 0 #00994C !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+        }
+
+        .option-btn.wrong {
+            background-color: var(--wrong-color) !important;
+            border-color: #E03D49 !important;
+            color: white !important;
+            box-shadow: 0 4px 0 #C82333 !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+        }
+
+        .option-btn.disabled {
+            pointer-events: none;
+        }
+
+        /* Shake Effect */
+        .shake {
+            animation: shakeAnim 0.4s ease-in-out;
+        }
+
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        /* Explanation Box */
+        .explanation-box {
+            margin-top: 12px;
+            background: #E8F5E9;
+            border-radius: 12px;
+            border: 2px dashed #81C784;
+            padding: 14px;
+            display: none;
+        }
+
+        .exp-header {
+            color: #2E7D32;
+            font-weight: 900;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .exp-body {
+            font-size: 0.88rem;
+            color: #1B5E20;
+            line-height: 1.5;
+        }
+        
+        .exp-body ul {
+            margin: 4px 0;
+            padding-left: 18px;
+        }
+
+        /* Footer Submit Action Area */
+        .footer-action {
+            padding: 20px 0 40px 0;
+            text-align: center;
+        }
+
+        .btn-submit-all {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #D64545;
+            text-shadow: 0 2px 0 rgba(0,0,0,0.15);
+            transition: all 0.2s;
+        }
+
+        .btn-submit-all:hover {
+            transform: scale(1.04);
+            box-shadow: 0 8px 0 #D64545;
+        }
+
+        .btn-submit-all:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0 #D64545;
+        }
+
+        /* Modal Score Glass */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1; pointer-events: auto;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 15px 0px rgba(0,0,0,0.15);
+            border: 5px solid var(--primary-color);
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--primary-color);
+        }
+
+        .modal-score {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--accent-color);
+            margin: 15px 0;
+        }
+
+        .modal-feedback {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-color);
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        .btn-restart {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #6c3da3;
+        }
+
+        /* Canvas Confetti Layer */
+        #confetti-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        /* Custom Scrollbar for Gamification Experience */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(136, 84, 192, 0.4);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(136, 84, 192, 0.7);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Top Bar Control Panel -->
+    <div class="top-bar">
+        <div class="teacher-brand">
+            <h1>Giáo viên tạo: Ms Lê Hằng English ✨</h1>
+        </div>
+        <div class="timer-container">
+            <button class="timer-btn" id="timerCtrlBtn" onclick="toggleTimer()">BẮT ĐẦU TÍNH GIỜ LÀM BÀI</button>
+            <div class="timer-display" id="timeDisplay">10:00</div>
+        </div>
+    </div>
+
+    <!-- Main Workspace Area -->
+    <div class="main-layout">
+        
+        <!-- LEFT PANEL: READING PASSAGES & GLOSSARIES -->
+        <div class="panel left-panel">
+            <div class="alert-banner">
+                💡 <strong>Lời nhắc từ cô Lê Hằng:</strong> Con nhớ đọc thật kỹ nội dung các bài khóa phía bên trái này, đối chiếu bảng từ vựng thông thái để nâng trình từ vựng trước khi chọn đáp án bài tập bên phải nhé!
+            </div>
+
+            <!-- PASSAGE EX 2 - 1 -->
+            <div class="section-title">Reading Passage - Exercise 2 ❶</div>
+            <div class="content-card">
+                <div class="passage-text" id="p-ex2-1">
+                    <strong>Discover Vietnam's Rich Culture!</strong>
+                    Vietnam is a beautiful country with many interesting ethnic groups. Did you know there are 54 different groups? Each group has its own special traditions, clothes, and music. Come and learn about them! You can see colourful festivals and hear unique sounds, like the (1) _____. Travel with us to discover the amazing diversity (2) _____Vietnam. Experience the friendly people and rich history. Start (3) _____ your adventure today and make (4) _____ memories!
+                </div>
+                <button class="trans-btn" onclick="toggleTranslation('trans-ex2-1')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-content" id="trans-ex2-1">
+                    <strong>Khám phá nền văn hóa phong phú của Việt Nam!</strong><br>
+                    Việt Nam là một đất nước xinh đẹp với nhiều dân tộc anh em thú vị. Bạn có biết rằng có tới 54 dân tộc khác nhau không? Mỗi dân tộc đều có truyền thống, trang phục và âm nhạc đặc sắc riêng. Hãy đến và tìm hiểu về họ! Bạn có thể ngắm nhìn các lễ hội rực rỡ sắc màu và nghe những âm thanh độc đáo, như tiếng sáo tre. Hãy đồng hành cùng chúng tôi để khám phá sự đa dạng tuyệt vời của Việt Nam. Trải nghiệm những con người thân thiện và bề dày lịch sử phong phú. Hãy bắt đầu lên kế hoạch cho cuộc phiêu lưu của bạn ngay hôm nay và tạo nên thật nhiều kỷ niệm đáng nhớ!
+                </div>
+                
+                <div class="glossary-box">
+                    <table class="glossary-table">
+                        <thead>
+                            <tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa tiếng Việt</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Ethnic group</td><td>n.phr</td><td>Nhóm dân tộc</td></tr>
+                            <tr><td>Tradition</td><td>n</td><td>Truyền thống</td></tr>
+                            <tr><td>Colourful</td><td>adj</td><td>Rực rỡ sắc màu</td></tr>
+                            <tr><td>Unique</td><td>adj</td><td>Độc nhất vô nhị, độc đáo</td></tr>
+                            <tr><td>Diversity</td><td>n</td><td>Sự đa dạng</td></tr>
+                            <tr><td>Experience</td><td>v / n</td><td>Trải nghiệm</td></tr>
+                            <tr><td>Adventure</td><td>n</td><td>Cuộc phiêu lưu</td></tr>
+                            <tr><td>Bamboo flute</td><td>n.phr</td><td>Sáo tre</td></tr>
+                            <tr><td>Rich history</td><td>n.phr</td><td>Lịch sử phong phú / lâu đời</td></tr>
+                            <tr><td>Memory</td><td>n</td><td>Kỷ niệm, trí nhớ</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PASSAGE EX 2 - 2 -->
+            <div class="section-title">Reading Passage - Exercise 2 ❷</div>
+            <div class="content-card">
+                <div class="passage-text" id="p-ex2-2">
+                    <strong>Play Traditional Games!</strong>
+                    Do you want to have (1) _____ and learn English? Join our exciting new class: "Play Traditional Games!" We'll explore fun Vietnamese games like Marbles and Mandarin Square Capturing. (2) _____ are these games? They are (3) _____! Learn new words, practice speaking, and make new friends. Come and play (4) _____ us! Sign up today!
+                </div>
+                <button class="trans-btn" onclick="toggleTranslation('trans-ex2-2')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-content" id="trans-ex2-2">
+                    <strong>Chơi các trò chơi dân gian!</strong><br>
+                    Bạn có muốn vui chơi giải trí và học tiếng Anh không? Hãy tham gia lớp học mới đầy thú vị của chúng tôi: "Chơi các trò chơi dân gian!". Chúng ta sẽ cùng nhau khám phá các trò chơi vui nhộn của Việt Nam như trò Bắn bi và Ô ăn quan. Tại sao lại là các trò chơi này ư? Chúng thật tuyệt vời! Học thêm từ mới, thực hành nói, và kết bạn mới. Hãy đến chơi cùng chúng tôi nào! Đăng ký ngay hôm nay!
+                </div>
+                
+                <div class="glossary-box">
+                    <table class="glossary-table">
+                        <thead>
+                            <tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa tiếng Việt</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Traditional game</td><td>n.phr</td><td>Trò chơi dân gian / truyền thống</td></tr>
+                            <tr><td>Exciting</td><td>adj</td><td>Hào hứng, thú vị</td></tr>
+                            <tr><td>Explore</td><td>v</td><td>Khám phá</td></tr>
+                            <tr><td>Marbles</td><td>n</td><td>Trò chơi bắn bi</td></tr>
+                            <tr><td>Mandarin Square Capturing</td><td>n.phr</td><td>Trò chơi Ô ăn quan</td></tr>
+                            <tr><td>Wonderful</td><td>adj</td><td>Tuyệt vời</td></tr>
+                            <tr><td>Practice</td><td>v</td><td>Thực hành, luyện tập</td></tr>
+                            <tr><td>Sign up</td><td>v.phr</td><td>Đăng ký tham gia</td></tr>
+                            <tr><td>Have fun</td><td>v.phr</td><td>Vui vẻ, có niềm vui</td></tr>
+                            <tr><td>Word</td><td>n</td><td>Từ vựng</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PASSAGE EX 3 - 1 -->
+            <div class="section-title">Reading Passage - Exercise 3 ❶</div>
+            <div class="content-card">
+                <div class="passage-text" id="p-ex3-1">
+                    <strong>Communal House (Rong House)</strong>
+                    The Rong House can only be found in villages to the north of the Central Highlands, especially in Gia Lai and Kon Tum provinces. It is a large, imposing, beautifully decorated stilt house built (1) _______ the middle of the village. It is where community activities take place, meetings, wedding ceremonies, or praying ceremonies. It is also the place for reception of guests. The Rong House of each ethnic group has its own architectural style, design, and decor. Yet there are shared (2) _______. In the village, it is often the biggest house roofed with yellow-dried thatch leaves and having 8 big wood columns. The rafters are decorated with patterns of bright colours, depicting religious scenes, legendary stories about ancient heroes, stylized animals, and other familiar things of village life. The most (3) ______ of the decor of the Rong House is the (4) _______ of the brilliant God of Sun. The Rong House is a (5) _______ of the culture of Central Highlanders, an age-old and stable culture. The bigger the house, the wealthier the village is. It is a (6) _______ of the whole village.
+                </div>
+                <button class="trans-btn" onclick="toggleTranslation('trans-ex3-1')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-content" id="trans-ex3-1">
+                    <strong>Nhà rông (Nhà văn hóa cộng đồng)</strong><br>
+                    Nhà Rông chỉ có thể tìm thấy ở các bản làng phía bắc Tây Nguyên, đặc biệt là ở hai tỉnh Gia Lai và Kon Tum. Đó là một ngôi nhà sàn lớn, uy nghi, được trang trí đẹp mắt, xây dựng ở ngay chính giữa bản làng. Đây là nơi diễn ra các hoạt động của cộng đồng, các cuộc họp, lễ cưới, hay các lễ cầu nguyện. Nó cũng là nơi để tiếp đón các vị khách. Nhà Rông của mỗi nhóm dân tộc có phong cách kiến trúc, thiết kế và trang trí riêng biệt. Tuy nhiên vẫn có những đặc điểm chung. Trong làng, nó thường là ngôi nhà lớn nhất được lợp bằng lá tranh khô vàng và có 8 cột gỗ lớn. Các rui mè được trang trí bằng các hoa văn màu sắc tươi sáng, mô tả các cảnh tượng tôn giáo, các câu chuyện huyền thoại về các vị anh hùng cổ xưa, các loài động vật được cách điệu hóa và những vật dụng quen thuộc khác của đời sống dân làng. Điều đặc biệt nhất trong trang trí nhà Rông là hình ảnh Thần Mặt Trời rực rỡ. Nhà Rông là một biểu tượng văn hóa của người dân Tây Nguyên, một nền văn hóa lâu đời và bền vững. Ngôi nhà càng lớn chứng tỏ ngôi làng càng giàu có. Nó là niềm tự hào của toàn thể dân làng.
+                </div>
+                
+                <div class="glossary-box">
+                    <table class="glossary-table">
+                        <thead>
+                            <tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa tiếng Việt</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Central Highlands</td><td>n.phr</td><td>Vùng Tây Nguyên</td></tr>
+                            <tr><td>Imposing</td><td>adj</td><td>Uy nghi, hùng vĩ, đồ sộ</td></tr>
+                            <tr><td>Stilt house</td><td>n.phr</td><td>Nhà sàn</td></tr>
+                            <tr><td>Ceremony</td><td>n</td><td>Nghi lễ, buổi lễ</td></tr>
+                            <tr><td>Architectural style</td><td>n.phr</td><td>Phong cách kiến trúc</td></tr>
+                            <tr><td>Thatch leaves</td><td>n.phr</td><td>Lá cỏ tranh (để lợp nhà)</td></tr>
+                            <tr><td>Depict</td><td>v</td><td>Mô tả, khắc họa</td></tr>
+                            <tr><td>Legendary</td><td>adj</td><td>Mang tính huyền thoại / truyền thuyết</td></tr>
+                            <tr><td>Distinctive</td><td>adj</td><td>Đặc biệt, mang tính khác biệt</td></tr>
+                            <tr><td>Symbol</td><td>n</td><td>Biểu tượng</td></tr>
+                            <tr><td>Pride</td><td>n</td><td>Niềm tự hào</td></tr>
+                            <tr><td>Wealthier</td><td>adj (comp)</td><td>Giàu có hơn</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PASSAGE EX 3 - 2 -->
+            <div class="section-title">Reading Passage - Exercise 3 ❷</div>
+            <div class="content-card">
+                <div class="passage-text" id="p-ex3-2">
+                    Viet Nam is a multi-nationality country with 54 ethnic (1) _______. The Viet (Kinh) people account (2) _______ 87% of the country’s population and mainly inhabit the Red River delta, the central coastal delta, the Mekong delta and major cities. The other 53 ethnic (3) _______ groups, totalling over 8 million people, are scattered over mountain areas (covering two-thirds of the country’s territory) spreading from the North to the South. Among ethnic minorities, the largest ones are Tay, Thai, Muong, Hoa, Khmer, and Nung with a (4) _______ of around 1 million each, while the smallest are Brau, Roman, Odu with several hundred people each.
+                    A number of ethnic minorities had mastered some farming techniques. They grew rice plants in swamped paddy fields and carried out irrigation. Others (5) _______ hunting, fishing, collecting and lived a semi-nomadic life. (6) _____ group has its own culture, diverse and special. Beliefs and religions of the Vietnamese ethnic minority groups were also disparate from each other.
+                </div>
+                <button class="trans-btn" onclick="toggleTranslation('trans-trans3-2')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-content" id="trans-trans3-2">
+                    Việt Nam là một quốc gia đa sắc tộc với 54 nhóm dân tộc. Người Việt (Kinh) chiếm khoảng 87% dân số cả nước và chủ yếu sinh sống ở đồng bằng sông Hồng, đồng bằng duyên hải miền Trung, đồng bằng sông Cửu Long và các thành phố lớn. 53 nhóm dân tộc thiểu số còn lại, với tổng số dân hơn 8 triệu người, sống rải rác khắp các vùng núi (chiếm hai phần ba lãnh thổ quốc gia) kéo dài từ Bắc vào Nam. Trong số các dân tộc thiểu số, các dân tộc lớn nhất là Tày, Thái, Mường, Hoa, Khmer và Nùng với dân số khoảng 1 triệu người mỗi tộc, trong khi các dân tộc nhỏ nhất là Brâu, Rơ-măm, Ơ-đủ với chỉ vài trăm người mỗi tộc.<br>
+                    Một số dân tộc thiểu số đã làm chủ được các kỹ thuật canh tác nông nghiệp. Họ trồng lúa nước trên các ruộng lúa ngập nước và thực hiện công tác thủy lợi. Những tộc người khác thì thực hiện săn bắn, đánh cá, hái lượm và sống cuộc sống bán du mục. Mỗi nhóm đều có nền văn hóa đa dạng và đặc sắc riêng. Tín ngưỡng và tôn giáo của các nhóm dân tộc thiểu số Việt Nam cũng khác biệt nhau.
+                </div>
+                
+                <div class="glossary-box">
+                    <table class="glossary-table">
+                        <thead>
+                            <tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa tiếng Việt</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Multi-nationality</td><td>adj</td><td>Đa quốc tịch / Đa sắc tộc</td></tr>
+                            <tr><td>Account for</td><td>v.phr</td><td>Chiếm (bao nhiêu phần trăm)</td></tr>
+                            <tr><td>Inhabit</td><td>v</td><td>Sinh sống, trú ngụ</td></tr>
+                            <tr><td>Scattered</td><td>adj</td><td>Rải rác, thưa thớt</td></tr>
+                            <tr><td>Territory</td><td>n</td><td>Lãnh thổ</td></tr>
+                            <tr><td>Minority</td><td>n</td><td>Thiểu số</td></tr>
+                            <tr><td>Master</td><td>v</td><td>Thành thạo, làm chủ</td></tr>
+                            <tr><td>Irrigation</td><td>n</td><td>Thủy lợi, tưới tiêu</td></tr>
+                            <tr><td>Semi-nomadic</td><td>adj</td><td>Bán du mục</td></tr>
+                            <tr><td>Disparate</td><td>adj</td><td>Khác nhau, loại khác biệt</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PASSAGE EX 4 - 1 -->
+            <div class="section-title">Reading Passage - Exercise 4 ❶</div>
+            <div class="content-card">
+                <div class="passage-text" id="p-ex4-1">
+                    In Viet Nam, a market is a trading place, but many markets are not only about buying and selling things. They reflect the life of the community. A traditional market is a social gathering point for people of all ages and it is a new and exciting experience for children, a trading place for local craftsmen, and a chance for young people to meet. People go to the traditional market not only to buy and sell things but also to eat, drink, play games, and socialize. For example, if you go to Sa Pa Market, which is in the highlands in the north of Viet Nam, you can see people wearing their nicest clothes and spending all day long at the market. They buy things, play the flute, dance, and sing. This is also a time to meet, make friends or look for lovers. That is why this kind of gathering is also called "Love Market”. Some other countryside markets in the Mekong Delta are held on boats. Most of the goods are sold at a floating market. The most exciting time is in the early morning when boats arrive loaded up with agricultural products.
+                </div>
+                <button class="trans-btn" onclick="toggleTranslation('trans-ex4-1')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-content" id="trans-ex4-1">
+                    Ở Việt Nam, chợ là một nơi mua bán, nhưng nhiều ngôi chợ không chỉ đơn thuần là việc mua và bán hàng hóa. Chúng phản chiếu đời sống của cộng đồng. Chợ truyền thống là một điểm tụ họp xã hội dành cho mọi lứa tuổi và đó là một trải nghiệm mới mẻ, hào hứng cho trẻ em, một nơi giao thương cho thợ thủ công địa phương, và là cơ hội để những người trẻ tuổi gặp gỡ nhau. Người ta đến chợ truyền thống không chỉ để mua bán đồ đạc mà còn để ăn, uống, chơi trò chơi và giao lưu kết bạn. Ví dụ, nếu bạn đến chợ Sa Pa, một nơi nằm ở vùng cao phía bắc Việt Nam, bạn có thể thấy mọi người diện những bộ trang phục đẹp nhất của họ và dành cả ngày dài ở chợ. Họ mua đồ, thổi sáo, nhảy múa và ca hát. Đây cũng là thời điểm để gặp gỡ, kết bạn hoặc tìm kiếm người yêu. Đó là lý do tại sao kiểu tụ họp này còn được gọi là "Chợ tình". Một số chợ vùng nông thôn khác ở vùng đồng bằng sông Cửu Long lại được tổ chức trên những chiếc thuyền. Hầu hết hàng hóa được bán tại chợ nổi. Thời điểm thú vị nhất là vào sáng sớm khi các con thuyền cập bến chở đầy ắp nông sản.
+                </div>
+                
+                <div class="glossary-box">
+                    <table class="glossary-table">
+                        <thead>
+                            <tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa tiếng Việt</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Trading place</td><td>n.phr</td><td>Nơi giao thương, mua bán</td></tr>
+                            <tr><td>Reflect</td><td>v</td><td>Phản chiếu, phản ánh</td></tr>
+                            <tr><td>Social gathering</td><td>n.phr</td><td>Tụ họp xã hội, giao lưu</td></tr>
+                            <tr><td>Craftsman</td><td>n</td><td>Thợ thủ công</td></tr>
+                            <tr><td>Socialize</td><td>v</td><td>Hòa nhập xã hội, giao lưu</td></tr>
+                            <tr><td>Highlands</td><td>n</td><td>Vùng cao, cao nguyên</td></tr>
+                            <li>Love Market</td><td>n.phr</td><td>Chợ tình</td></tr>
+                            <tr><td>Floating market</td><td>n.phr</td><td>Chợ nổi</td></tr>
+                            <tr><td>Loaded up</td><td>adj / phr</td><td>Chất đầy, chở đầy</td></tr>
+                            <tr><td>Agricultural product</td><td>n.phr</td><td>Nông sản</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PASSAGE EX 4 - 2 -->
+            <div class="section-title">Reading Passage - Exercise 4 ❷</div>
+            <div class="content-card">
+                <div class="passage-text" id="p-ex4-2">
+                    Bamboo is engraved in Vietnamese culture and daily life, providing protection, and representing resiliency. Bamboo can be manipulated in any shape or form to assist in the simplest or most complex of functions. Here in Vietnam, and especially in the countryside, bamboo is used for everything- from chopsticks, to chairs, to agricultural tools, to roofs, to instruments and to home decorations.
+                    Bamboo is embedded even in Vietnamese dance culture! A series of bamboo sticks are set up in a line, with people holding them in place on either side. Dancers move in and out of the sticks, trying to time their dancing so as not to get caught between the bamboo sticks. Performers typically dance hand in hand, slowly making their way sideways along the bamboo line and even the best of dancers always tend to get stuck a few times, resulting in bunches of giggles and loads of smiles.
+                </div>
+                <button class="trans-btn" onclick="toggleTranslation('trans-ex4-2')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-content" id="trans-ex4-2">
+                    Tre được khắc sâu vào văn hóa và đời sống hàng ngày của người Việt Nam, giúp che chở bảo vệ và đại diện cho sự kiên cường. Tre có thể được uốn nắn uốn dẻo thành bất kỳ hình dạng hoặc hình thức nào để hỗ trợ từ các chức năng đơn giản nhất cho đến phức tạp nhất. Tại đây ở Việt Nam, và đặc biệt là ở vùng nông thôn, tre được sử dụng cho mọi thứ - từ đôi đũa, chiếc ghế, công cụ nông nghiệp, đến mái nhà, nhạc cụ và đồ trang trí nhà cửa.<br>
+                    Tre thậm chí còn được lồng ghép sâu sắc trong văn hóa múa nhảy của người Việt! Một chuỗi các thanh tre được xếp thành một hàng, với những người giữ chúng ở vị trí cố định ở hai bên. Các vũ công di chuyển nhảy ra nhảy vào giữa các thanh tre, cố gắng căn chỉnh thời gian nhảy sao cho không bị kẹp giữa các thanh tre. Những người biểu diễn thường nắm tay nhau, từ từ di chuyển theo chiều ngang dọc theo hàng tre và ngay cả những vũ công giỏi nhất cũng luôn có xu hướng bị mắc kẹt vài lần, tạo nên những tràng cười khúc khích và vô vàn nụ cười rạng rỡ.
+                </div>
+                
+                <div class="glossary-box">
+                    <table class="glossary-table">
+                        <thead>
+                            <tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa tiếng Việt</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Engraved</td><td>adj / v</td><td>Khắc sâu, in sâu</td></tr>
+                            <tr><td>Resiliency</td><td>n</td><td>Sự kiên cường, khả năng phục hồi</td></tr>
+                            <tr><td>Manipulated</td><td>v (passive)</td><td>Được uốn nắn, thao tác, điều khiển</td></tr>
+                            <tr><td>Instrument</td><td>n</td><td>Nhạc cụ, công cụ</td></tr>
+                            <tr><td>Embedded</td><td>adj / v</td><td>Gắn chặt, lồng ghép sâu</td></tr>
+                            <tr><td>Hand in hand</td><td>idiom</td><td>Nắm tay nhau, đồng hành</td></tr>
+                            <tr><td>Sideways</td><td>adv</td><td>Sang một bên, theo chiều ngang</td></tr>
+                            <tr><td>Giggle</td><td>n / v</td><td>Tiếng cười khúc khích</td></tr>
+                            <tr><td>Protection</td><td>n</td><td>Sự bảo vệ, che chở</td></tr>
+                            <tr><td>Complex</td><td>adj</td><td>Phức tạp</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT PANEL: INTERACTIVE EXERCISES -->
+        <div class="panel right-panel">
+            
+            <!-- EXERCISE 2 INTERACTIVE -->
+            <div class="section-title">Exercise 2: Multiple Choice Questions</div>
+            <div id="exercise2-questions"></div>
+
+            <!-- EXERCISE 3 INTERACTIVE -->
+            <div class="section-title">Exercise 3: Word Choice In Passages</div>
+            <div id="exercise3-questions"></div>
+
+            <!-- EXERCISE 4 INTERACTIVE -->
+            <div class="section-title">Exercise 4: Reading Comprehension Qs</div>
+            <div id="exercise4-questions"></div>
+
+            <!-- EXERCISE 5 INTERACTIVE WITH ELLIPSIS CLICK -->
+            <div class="section-title">Exercise 5: Missing Sentences Insertion</div>
+            <div id="exercise5-questions"></div>
+
+            <!-- FINAL SUBMIT AREA -->
+            <div class="footer-action">
+                <button class="btn-submit-all" onclick="gradeEntireQuiz()">🎉 NỘP BÀI XEM ĐIỂM 🎉</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCOREBOARD POPUP MODAL -->
+    <div class="modal-overlay" id="scoreModal">
+        <div class="modal-content">
+            <div class="modal-title">🏆 KẾT QUẢ BÀI LÀM CỦA CON 🏆</div>
+            <div class="modal-score" id="popupScoreDisplay">0/0</div>
+            <div class="modal-feedback" id="popupFeedbackText">Lời nhận xét...</div>
+            <button class="btn-restart" onclick="resetQuizGame()">Làm Lại Bài Lần Nữa 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // Full Dataset Array Configuration
+        const quizData = [
+            // EXERCISE 2 - PART 1
+            { id: "ex2_1", exNum: 2, part: "❶", qNum: 1, text: "Chọn từ điền vào chỗ trống số (1) trong bài đọc ❶:", options: [{k:"A",t:"ethnic group"},{k:"B",t:"bamboo flute"},{k:"C",t:"Rong house"},{k:"D",t:"wooden statue"}], correct: "B", exp: "1. Phân tích nghĩa từ vựng:<br>A. ethnic group: nhóm dân tộc<br>B. bamboo flute: sáo tre<br>C. Rong house: nhà rông<br>D. wooden statue: tượng gỗ<br>2. Ngữ cảnh: 'hear unique sounds, like the...' (nghe thấy những âm thanh độc đáo như...). Do đó phải chọn một nhạc cụ phát ra âm thanh -> B là đáp án chính xác." },
+            { id: "ex2_2", exNum: 2, part: "❶", qNum: 2, text: "Chọn từ điền vào chỗ trống số (2) trong bài đọc ❶:", options: [{k:"A",t:"of"},{k:"B",t:"in"},{k:"C",t:"on"},{k:"D",t:"at"}], correct: "A", exp: "Cấu trúc danh từ: 'the amazing diversity of Vietnam' (sự đa dạng tuyệt vời CỦA Việt Nam). Giới từ 'of' chỉ sự sở hữu, thuộc về quốc gia nào." },
+            { id: "ex2_3", exNum: 2, part: "❶", qNum: 3, text: "Chọn từ điền vào chỗ trống số (3) trong bài đọc ❶:", options: [{k:"A",t:"to plan"},{k:"B",t:"planning"},{k:"C",t:"plan"},{k:"D",t:"plans"}], correct: "B", exp: "Động từ 'Start' có thể đi kèm với V-ing để chỉ hành động bắt đầu một thói quen hoặc quá trình lâu dài liên tục. Trong văn phong quảng cáo hành trình này, 'Start planning your adventure today' (Hãy bắt đầu lập kế hoạch cho chuyến phiêu lưu của bạn hôm nay) sử dụng cấu trúc Gerund sau động từ khởi đầu hành động." },
+            { id: "ex2_4", exNum: 2, part: "❶", qNum: 4, text: "Chọn từ điền vào chỗ trống số (4) trong bài đọc ❶:", options: [{k:"A",t:"any"},{k:"B",t:"an"},{k:"C",t:"many"},{k:"D",t:"a"}], correct: "C", exp: "Từ 'memories' là danh từ đếm được số nhiều. 'Many' đi kèm danh từ đếm được số nhiều để nghĩa là 'nhiều kỷ niệm'. Loại 'an' và 'a' vì đi với danh từ số ít, loại 'any' vì thường dùng trong câu phủ định/nghi vấn." },
+            // EXERCISE 2 - PART 2
+            { id: "ex2_5", exNum: 2, part: "❷", qNum: 1, text: "Chọn từ điền vào chỗ trống số (1) trong bài đọc ❷:", options: [{k:"A",t:"bad"},{k:"B",t:"fun"},{k:"C",t:"sad"},{k:"D",t:"angry"}], correct: "B", exp: "Cụm từ cố định (Collocation): 'have fun' nghĩa là vui vẻ, có niềm vui thỏa thích. Các tính từ khác (bad, sad, angry) mang nghĩa tiêu cực không hợp với lời mời gọi vui tươi." },
+            { id: "ex2_6", exNum: 2, part: "❷", qNum: 2, text: "Chọn từ điền vào chỗ trống số (2) trong bài đọc ❷:", options: [{k:"A",t:"Why"},{k:"B",t:"Who"},{k:"C",t:"What"},{k:"D",t:"Where"}], correct: "A", exp: "Câu tiếp theo trả lời: 'They are wonderful!' (Chúng thật tuyệt vời!). Đây là câu giải thích lý do nên câu hỏi tự nhiên phải là câu hỏi lý do: 'Why are these games?' (Tại sao lại chơi các trò chơi này ư? Khơi gợi lý do thích thú)." },
+            { id: "ex2_7", exNum: 2, part: "❷", qNum: 3, text: "Chọn từ điền vào chỗ trống số (3) trong bài đọc ❷:", options: [{k:"A",t:"wonder"},{k:"B",t:"wonderfully"},{k:"C",t:"wonderful"},{k:"D",t:"wondered"}], correct: "C", exp: "Sau động từ tobe 'are' cần điền một tính từ (Adjective) đóng vai trò bổ ngữ cho chủ ngữ. 'wonderful' (tính từ) là chính xác." },
+            { id: "ex2_8", exNum: 2, part: "❷", qNum: 4, text: "Chọn từ điền vào chỗ trống số (4) trong bài đọc ❷:", options: [{k:"A",t:"at"},{k:"B",t:"on"},{k:"C",t:"in"},{k:"D",t:"with"}], correct: "D", exp: "Cụm từ: 'play with somebody' nghĩa là chơi cùng với ai đó. 'Come and play with us!' (Đến chơi với chúng tớ đi!)." },
+            
+            // EXERCISE 3 - PART 1
+            { id: "ex3_1", exNum: 3, part: "❶", qNum: 1, text: "Chọn từ điền vào chỗ trống số (1) trong bài đọc ❶ (Rong House):", options: [{k:"A",t:"on"},{k:"B",t:"at"},{k:"C",t:"in"},{k:"D",t:"under"}], correct: "C", exp: "Cụm từ chỉ vị trí địa lý cố định không gian: 'in the middle of...' nghĩa là ở giữa một khu vực / địa điểm bao quanh nào đó (bản làng)." },
+            { id: "ex3_2", exNum: 3, part: "❶", qNum: 2, text: "Chọn từ điền vào chỗ trống số (2) trong bài đọc ❶ (Rong House):", options: [{k:"A",t:"designs"},{k:"B",t:"cultures"},{k:"C",t:"customs"},{k:"D",t:"features"}], correct: "D", exp: "Dựa vào câu trước 'has its own architectural style, design, and decor' (có phong cách riêng) kết hợp với từ 'Yet' (tuy nhiên), vế sau chỉ ra 'Yet there are shared features' (tuy vậy vẫn có những đặc điểm chung được chia sẻ đồng bộ giữa các nhà)." },
+            { id: "ex3_3", exNum: 3, part: "❶", qNum: 3, text: "Chọn từ điền vào chỗ trống số (3) trong bài đọc ❶ (Rong House):", options: [{k:"A",t:"distinguished"},{k:"B",t:"distinction"},{k:"C",t:"distinctive"},{k:"D",t:"distinctly"}], correct: "C", exp: "Cấu trúc ngữ pháp 'The most + adj + of the...' dùng để so sánh nhất với tính từ dài. Ở đây bổ nghĩa danh từ decor, tính từ 'distinctive' nghĩa là mang tính đặc trưng, nổi bật nhất." },
+            { id: "ex3_4", exNum: 3, part: "❶", qNum: 4, text: "Chọn từ điền vào chỗ trống số (4) trong bài đọc ❶ (Rong House):", options: [{k:"A",t:"painting"},{k:"B",t:"photo"},{k:"C",t:"image"},{k:"D",t:"portrait"}], correct: "C", exp: "Dùng từ 'image of the brilliant God of Sun' (hình ảnh của vị thần mặt trời chói lọi). Dùng 'image' chuẩn xác nhất cho biểu trưng hoặc hình ảnh chạm khắc nghệ thuật văn hóa tâm linh." },
+            { id: "ex3_5", exNum: 3, part: "❶", qNum: 5, text: "Chọn từ điền vào chỗ trống số (5) trong bài đọc ❶ (Rong House):", options: [{k:"A",t:"signal"},{k:"B",t:"symbol"},{k:"C",t:"sign"},{k:"D",t:"scene"}], correct: "B", exp: "Nhà Rông là một 'symbol of the culture' (biểu tượng của nền văn hóa Tây Nguyên). Từ 'symbol' mang tính đại diện linh thiêng, tôn quý." },
+            { id: "ex3_6", exNum: 3, part: "❶", qNum: 6, text: "Chọn từ điền vào chỗ trống số (6) trong bài đọc ❶ (Rong House):", options: [{k:"A",t:"design"},{k:"B",t:"respect"},{k:"C",t:"proud"},{k:"D",t:"pride"}], correct: "D", exp: "Sau mạo từ 'a' cần một danh từ. Cụm cấu trúc 'a pride of the whole village' nghĩa là niềm tự hào của toàn bộ bản làng. Loại 'proud' vì là tính từ." },
+            
+            // EXERCISE 3 - PART 2
+            { id: "ex3_7", exNum: 3, part: "❷", qNum: 1, text: "Chọn từ điền vào chỗ trống số (1) trong bài đọc ❷ (Multi-nationality):", options: [{k:"A",t:"groups"},{k:"B",t:"team"},{k:"C",t:"minorities"},{k:"D",t:"majorities"}], correct: "A", exp: "Cụm từ quen thuộc lặp lại liên tục: 'ethnic groups' nghĩa là các nhóm dân tộc." },
+            { id: "ex3_8", exNum: 3, part: "❷", qNum: 2, text: "Chọn từ điền vào chỗ trống số (2) trong bài đọc ❷ (Multi-nationality):", options: [{k:"A",t:"in"},{k:"B",t:"for"},{k:"C",t:"of"},{k:"D",t:"at"}], correct: "B", exp: "Cấu trúc động từ đi kèm giới từ (Phrasal Verb): 'account for + %' có nghĩa là chiếm bao nhiêu phần trăm tổng thể lượng dân số." },
+            { id: "ex3_9", exNum: 3, part: "❷", qNum: 3, text: "Chọn từ điền vào chỗ trống số (3) trong bài đọc ❷ (Multi-nationality):", options: [{k:"A",t:"large"},{k:"B",t:"majority"},{k:"C",t:"small"},{k:"D",t:"minority"}], correct: "D", exp: "Đoạn văn ghi 'The other 53 ethnic minority groups' (53 nhóm dân tộc thiểu số còn lại). 'ethnic minority groups' là cụm chuẩn xác." },
+            { id: "ex3_10", exNum: 3, part: "❷", qNum: 4, text: "Chọn từ điền vào chỗ trống số (4) trong bài đọc ❷ (Multi-nationality):", options: [{k:"A",t:"religion"},{k:"B",t:"inhabitants"},{k:"C",t:"population"},{k:"D",t:"people"}], correct: "C", exp: "Câu nói về số lượng người đạt mốc 1 triệu người ở mỗi tộc: 'with a population of around 1 million each' (với lượng dân số đạt tầm khoảng 1 triệu người mỗi nhóm)." },
+            { id: "ex3_11", exNum: 3, part: "❷", qNum: 5, text: "Chọn từ điền vào chỗ trống số (5) trong bài đọc ❷ (Multi-nationality):", options: [{k:"A",t:"did"},{k:"B",t:"went"},{k:"C",t:"made"},{k:"D",t:"used"}], correct: "B", exp: "Cấu trúc liệt kê các hoạt động ở quá khứ: 'went hunting, fishing, collecting...' (đã đi săn bắn, câu cá, hái lượm). Động từ 'go + V-ing' chia quá khứ đơn biến thành 'went'." },
+            { id: "ex3_12", exNum: 3, part: "❷", qNum: 6, text: "Chọn từ điền vào chỗ trống số (6) trong bài đọc ❷ (Multi-nationality):", options: [{k:"A",t:"Some"},{k:"B",t:"Each"},{k:"C",t:"Lots of"},{k:"D",t:"Any"}], correct: "B", exp: "Sau vị trí trống là danh từ số ít 'group has...'. 'Each' đi kèm với danh từ số ít nghĩa là mỗi nhóm, mỗi một dân tộc." },
+
+            // EXERCISE 4 - PART 1
+            { id: "ex4_1", exNum: 4, part: "❶", qNum: 1, text: "1. In Viet Nam, all markets are _____.", options: [{k:"A",t:"only trading places"},{k:"B",t:"only about buying things"},{k:"C",t:"only about selling things"},{k:"D",t:"not only about buying and selling things"}], correct: "D", exp: "Dẫn chứng trong bài đọc ghi rõ ở câu đầu tiên: 'In Viet Nam, a market is a trading place, but many markets are not only about buying and selling things.' Do vậy chọn đáp án D." },
+            { id: "ex4_2", exNum: 4, part: "❶", qNum: 2, text: "2. A traditional market is a social gathering point for _____.", options: [{k:"A",t:"young people"},{k:"B",t:"people of all ages"},{k:"C",t:"local craftsmen"},{k:"D",t:"children"}], correct: "B", exp: "Dẫn chứng nguyên văn trong đoạn: 'A traditional market is a social gathering point for people of all ages...'" },
+            { id: "ex4_3", exNum: 4, part: "❶", qNum: 3, text: "3. What can people do at the traditional market?", options: [{k:"A",t:"Sell and buy things only."},{k:"B",t:"Buy and sell things, eat, drink and play games."},{k:"C",t:"Buy things and eat."},{k:"D",t:"Buy and sell things, eat, drink, play games and socialize."}], correct: "D", exp: "Dẫn chứng bài đọc chỉ ra đầy đủ: 'People go to the traditional market not only to buy and sell things but also to eat, drink, play games, and socialize.'" },
+            { id: "ex4_4", exNum: 4, part: "❶", qNum: 4, text: "4. What do the ethnic people who go to Sa Pa Market do?", options: [{k:"A",t:"They wear their nicest clothes, buy things, play the flute, dance and sing."},{k:"B",t:"They ride on a horse and sing."},{k:"C",t:"They drink a lot of wine and dance."},{k:"D",t:"They buy the nicest clothes at the market and look for lovers."}], correct: "A", exp: "Dẫn chứng cụ thể: 'you can see people wearing their nicest clothes and spending all day long at the market. They buy things, play the flute, dance, and sing.'" },
+            { id: "ex4_5", exNum: 4, part: "❶", qNum: 5, text: "5. Some of the markets in the Mekong Delta are held _____ are called floating markets.", options: [{k:"A",t:"along the roads"},{k:"B",t:"on the paddy fields"},{k:"C",t:"on boats"},{k:"D",t:"in the morning"}], correct: "C", exp: "Dẫn chứng bài đọc: 'Some other countryside markets in the Mekong Delta are held on boats. Most of the goods are sold at a floating market.'" },
+
+            // EXERCISE 4 - PART 2
+            { id: "ex4_6", exNum: 4, part: "❷", qNum: 1, text: "1. What is the main idea of the passage?", options: [{k:"A",t:"Bamboo dance is part of Vietnamese traditional art."},{k:"B",t:"Bamboo is a part of Vietnamese culture and daily life."},{k:"C",t:"Bamboo dance is very easy to learn."},{k:"D",t:"It is fun to do bamboo dance."}], correct: "B", exp: "Câu đầu tiên khái quát chủ đề toàn bài đọc: 'Bamboo is engraved in Vietnamese culture and daily life...' (Tre được khắc sâu vào văn hóa và cuộc sống thường nhật của Việt Nam)." },
+            { id: "ex4_7", exNum: 4, part: "❷", qNum: 2, text: "2. What is NOT MENTIONED as a function of bamboo?", options: [{k:"A",t:"Making chopsticks"},{k:"B",t:"Making agriculture tools"},{k:"C",t:"Making bowls"},{k:"D",t:"Making roofs"}], correct: "C", exp: "Trong bài liệt kê rất nhiều công dụng bao gồm: chopsticks, chairs, agricultural tools, roofs, instruments nhưng KHÔNG hề nhắc đến việc làm bát (bowls)." },
+            { id: "ex4_8", exNum: 4, part: "❷", qNum: 3, text: "3. According to the passage, to perform the bamboo dance, dancers should", options: [{k:"A",t:"try not to get caught by the bamboo sticks."},{k:"B",t:"move in and out of the bamboo sticks quickly."},{k:"C",t:"Both A and B are correct."},{k:"D",t:"Both A and B are incorrect."}], correct: "A", exp: "Dẫn chứng bài viết: 'Dancers move in and out of the sticks, trying to time their dancing so as not to get caught between the bamboo sticks.' (Vũ công cố gắng căn thời gian để không bị kẹp chân). Đoạn văn không đề cập từ 'quickly' ở ý B, do đó chỉ chọn A." },
+            { id: "ex4_9", exNum: 4, part: "❷", qNum: 4, text: "4. Which sentence is NOT TRUE according to the passage?", options: [{k:"A",t:"We can make many things from bamboo."},{k:"B",t:"Bamboo dancers use their hands on the floor to dance."},{k:"C",t:"The best bamboo dancers can still get stuck a few times."},{k:"D",t:"Bamboo appears a lot in Vietnam daily life."}], correct: "B", exp: "Dựa vào đoạn văn: 'Performers typically dance hand in hand, slowly making their way sideways along the bamboo line' -> Họ nhảy nắm tay nhau đi dọc theo thanh tre bằng chân chứ không đặt tay xuống đất để nhảy. Vậy câu B sai thực tế văn bản." },
+            { id: "ex4_10", exNum: 4, part: "❷", qNum: 5, text: "5. Which explanation has the closest meaning to the word “hand in hand” in the passage?", options: [{k:"A",t:"Holding each other’s hand"},{k:"B",t:"Clapping each other’s hand"},{k:"C",t:"Shaking each other’s hand"},{k:"D",t:"Waving each other’s hand"}], correct: "A", exp: "Thành ngữ 'hand in hand' có nghĩa là tay trong tay, nắm tay nhau cùng tiến bước -> 'Holding each other's hand' là câu đồng nghĩa chuẩn xác nhất." },
+
+            // EXERCISE 5 - PART 1
+            { id: "ex5_1", exNum: 5, part: "❶", qNum: 1, text: "Điền câu khuyết vị trí (1) trong bài Muong people:", options: [{k:"A",t:"One of their most important festivals is the “Going to the Fields” ceremony."},{k:"B",t:"However, some of them also know the Kinh language."},{k:"C",t:"Therefore, it is convenient for their living and farming."},{k:"D",t:"The Muong build their houses on stilts with 4-roof architecture, which are about six feet off the ground."}], correct: "B", exp: "Câu trước nói: 'They speak the Muong language...' (Họ nói tiếng Mường...). Câu tiếp theo điền hợp lý nhất là bổ sung thêm khả năng ngôn ngữ của họ: 'However, some of them also know the Kinh language' (Tuy nhiên, một số người trong họ cũng biết tiếng Kinh)." },
+            { id: "ex5_2", exNum: 5, part: "❶", qNum: 2, text: "Điền câu khuyết vị trí (2) trong bài Muong people:", options: [{k:"A",t:"One of their most important festivals is the “Going to the Fields” ceremony."},{k:"B",t:"However, some of them also know the Kinh language."},{k:"C",t:"Therefore, it is convenient for their living and farming."},{k:"D",t:"The Muong build their houses on stilts with 4-roof architecture, which are about six feet off the ground."}], correct: "D", exp: "Câu tiếp sau vị trí trống nói về kiến trúc nhà: 'They are wooden houses in the shade of big trees...' (Chúng là những ngôi nhà gỗ...). Do đó câu đứng trước nó bắt buộc phải giới thiệu về nhà sàn của người Mường -> Đáp án D." },
+            { id: "ex5_3", exNum: 5, part: "❶", qNum: 3, text: "Điền câu khuyết vị trí (3) trong bài Muong people:", options: [{k:"A",t:"One of their most important festivals is the “Going to the Fields” ceremony."},{k:"B",t:"However, some of them also know the Kinh language."},{k:"C",t:"Therefore, it is convenient for their living and farming."},{k:"D",t:"The Muong build their houses on stilts with 4-roof architecture, which are about six feet off the ground."}], correct: "C", exp: "Câu trước mô tả vị trí nhà ở dựa lưng vào núi hướng ra đồng ruộng mênh mông, nên câu hệ quả 'Therefore, it is convenient for their living and farming' (Vì vậy, nó rất thuận tiện cho sinh hoạt và canh tác nông nghiệp của họ) là cực kỳ logic." },
+            { id: "ex5_4", exNum: 5, part: "❶", qNum: 4, text: "Điền câu khuyết vị trí (4) trong bài Muong people:", options: [{k:"A",t:"One of their most important festivals is the “Going to the Fields” ceremony."},{k:"B",t:"However, some of them also know the Kinh language."},{k:"C",t:"Therefore, it is convenient for their living and farming."},{k:"D",t:"The Muong build their houses on stilts with 4-roof architecture, which are about six feet off the ground."}], correct: "A", exp: "Đoạn cuối nói về các tín ngưỡng và nghi lễ thờ cúng linh hồn tổ tiên siêu nhiên, câu kết bài đưa ra ví dụ ngày hội lớn nhất: 'One of their most important festivals is the “Going to the Fields” ceremony.'" },
+
+            // EXERCISE 5 - PART 2
+            { id: "ex5_5", exNum: 5, part: "❷", qNum: 1, text: "Điền câu khuyết vị trí (1) trong bài Ethnic Minorities development:", options: [{k:"A",t:"They grew rice plants in swamped paddy fields and carried out irrigation."},{k:"B",t:"Each group has its own culture, diverse and special."},{k:"C",t:"The Cham people once boasted a flourishing culture early in the history."},{k:"D",t:"Many ethnic groups divided their population into social echelons, especially those who lived in mountainous areas."}], correct: "C", exp: "Câu tiếp sau nói về sự phát triển cao của các tộc người Tày, Nùng, Khmer. Câu điền vào phù hợp trường nghĩa phát triển thịnh vượng là nói về người Chăm: 'The Cham people once boasted a flourishing culture early in the history.'" },
+            { id: "ex5_6", exNum: 5, part: "❷", qNum: 2, text: "Điền câu khuyết vị trí (2) trong bài Ethnic Minorities development:", options: [{k:"A",t:"They grew rice plants in swamped paddy fields and carried out irrigation."},{k:"B",t:"Each group has its own culture, diverse and special."},{k:"C",t:"The Cham people once boasted a flourishing culture early in the history."},{k:"D",t:"Many ethnic groups divided their population into social echelons, especially those who lived in mountainous areas."}], correct: "D", exp: "Kết thúc đoạn nói về sự phân hóa tầng lớp và thủ lĩnh bộ lạc, đúc kết bằng câu: 'Many ethnic groups divided their population into social echelons...' (Nhiều nhóm dân tộc phân chia dân số thành các tầng lớp xã hội)." },
+            { id: "ex5_7", exNum: 5, part: "❷", qNum: 3, text: "Điền câu khuyết vị trí (3) trong bài Ethnic Minorities development:", options: [{k:"A",t:"They grew rice plants in swamped paddy fields and carried out irrigation."},{k:"B",t:"Each group has its own culture, diverse and special."},{k:"C",t:"The Cham people once boasted a flourishing culture early in the history."},{k:"D",t:"Many ethnic groups divided their population into social echelons, especially those who lived in mountainous areas."}], correct: "A", exp: "Câu trước: 'had mastered some farming techniques' (đã thành thục kỹ thuật canh tác). Thuyết minh cụ thể kỹ thuật đó là trồng lúa nước và làm thủy lợi: 'They grew rice plants in swamped paddy fields and carried out irrigation.'" },
+            { id: "ex5_8", exNum: 5, part: "❷", qNum: 4, text: "Điền câu khuyết vị trí (4) trong bài Ethnic Minorities development:", options: [{k:"A",t:"They grew rice plants in swamped paddy fields and carried out irrigation."},{k:"B",t:"Each group has its own culture, diverse and special."},{k:"C",t:"The Cham people once boasted a flourishing culture early in the history."},{k:"D",t:"Many ethnic groups divided their population into social echelons, especially those who lived in mountainous areas."}], correct: "B", exp: "Câu kế tiếp nói về sự đa dạng tôn giáo tín ngưỡng, nên câu đứng trước tóm lược văn hóa là hoàn toàn ăn khớp: 'Each group has its own culture, diverse and special.'" }
+        ];
+
+        // Web Audio API Sound Generator (No exterior asset files needed)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(120, audioCtx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.45);
+            }
+        }
+
+        // Shuffle utility
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // State variables
+        let userAnswers = {};
+        let timerInterval = null;
+        let timeRemaining = 600; // 10 minutes
+        let isTimerRunning = false;
+
+        // Translation toggle helper
+        function toggleTranslation(id) {
+            const el = document.getElementById(id);
+            el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // Timer controller logic
+        function toggleTimer() {
+            const btn = document.getElementById('timerCtrlBtn');
+            if (!isTimerRunning) {
+                isTimerRunning = true;
+                btn.innerText = "TẠM DỪNG ⏸";
+                timerInterval = setInterval(() => {
+                    timeRemaining--;
+                    updateTimerDisplay();
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        isTimerRunning = false;
+                        btn.innerText = "BẮT ĐẦU TÍNH GIỜ LÀM BÀI";
+                        alert("Đã hết giờ làm bài. Bạn vẫn có thể tiếp tục làm, nhưng nhớ là trong phòng thi thật, bạn chỉ nên làm một bài như thế này trong 10 phút thôi nha.");
+                    }
+                }, 1000);
+            } else {
+                isTimerRunning = false;
+                btn.innerText = "TIẾP TỤC ▶";
+                clearInterval(timerInterval);
+            }
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timeRemaining / 60);
+            const secs = timeRemaining % 60;
+            document.getElementById('timeDisplay').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Render exercise lists dynamically
+        function renderExercises() {
+            const containers = {
+                2: document.getElementById('exercise2-questions'),
+                3: document.getElementById('exercise3-questions'),
+                4: document.getElementById('exercise4-questions'),
+                5: document.getElementById('exercise5-questions')
+            };
+
+            quizData.forEach(q => {
+                const block = document.createElement('div');
+                block.className = 'content-card question-block';
+                block.id = `block-${q.id}`;
+
+                const title = document.createElement('div');
+                title.className = 'question-title';
+                title.innerHTML = `<strong>Dạng bài ${q.part} - Câu số ${q.qNum}:</strong> <br>${q.text}`;
+                block.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = 'options-grid';
+
+                // Duplicate and shuffle options array to guarantee true automation randomization
+                let shuffledOpts = shuffle([...q.options]);
+
+                shuffledOpts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = `option-btn btn-group-${q.id}`;
+                    btn.innerHTML = `<strong>${opt.k}.</strong> ${opt.t}`;
+                    btn.onclick = () => selectOption(q.id, opt.k, btn);
+                    grid.appendChild(btn);
+                });
+
+                block.appendChild(grid);
+
+                // Explanation inner box
+                const expBox = document.createElement('div');
+                expBox.className = 'explanation-box';
+                expBox.id = `explanation-${q.id}`;
+                expBox.innerHTML = `
+                    <div class="exp-header">💡 Giải thích chi tiết từ cô Lê Hằng:</div>
+                    <div class="exp-body">${q.exp}</div>
+                `;
+                block.appendChild(expBox);
+
+                containers[q.exNum].appendChild(block);
+            });
+        }
+
+        // Option interactive choosing mechanics
+        function selectOption(questionId, selectedKey, clickedBtn) {
+            if (userAnswers[questionId] !== undefined) return; // locked after submission
+
+            const question = quizData.find(item => item.id === questionId);
+            userAnswers[questionId] = selectedKey;
+
+            const allGroupBtns = document.querySelectorAll(`.btn-group-${questionId}`);
+            allGroupBtns.forEach(btn => btn.classList.add('disabled'));
+
+            const blockElement = document.getElementById(`block-${questionId}`);
+
+            if (selectedKey === question.correct) {
+                clickedBtn.classList.add('correct');
+                playSound('correct');
+                triggerSingleConfettiBurst();
+            } else {
+                clickedBtn.classList.add('wrong');
+                blockElement.classList.add('shake');
+                playSound('wrong');
+                
+                // Instantly force reveal right option to save small children's frustration
+                allGroupBtns.forEach(btn => {
+                    if (btn.innerText.trim().startsWith(question.correct)) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            // Expose detailed feedback explanation card instantly
+            document.getElementById(`explanation-${questionId}`).style.display = 'block';
+        }
+
+        // Grand Grading Automation
+        function gradeEntireQuiz() {
+            let totalQuestions = quizData.length;
+            let totalCorrect = 0;
+
+            quizData.forEach(q => {
+                if (userAnswers[q.id] === q.correct) {
+                    totalCorrect++;
+                }
+            });
+
+            const percentage = (totalCorrect / totalQuestions) * 100;
+            let textFeedback = "";
+
+            if (percentage === 100) {
+                textFeedback = "✨ THIÊN TÀI TIẾNG ANH XUẤT SẮC! Con đạt điểm tuyệt đối xuất sắc, cô Lê Hằng rất tự hào về con! Hãy tiếp tục phát huy phong độ này nhé! 🏆🎉";
+                triggerMassiveConfettiStorm();
+            } else if (percentage >= 75) {
+                textFeedback = "🌟 LÀM TỐT LẮM CON ƠI! Kết quả rất cao luôn nè. Hãy đọc lại những câu sai để tích lũy thêm mẹo làm bài nha con! 👑";
+                triggerMassiveConfettiStorm();
+            } else if (percentage >= 50) {
+                textFeedback = "😊 KHÁ TỐT NÈ! Con đã cố gắng làm bài rất nghiêm túc. Đọc thật kĩ lại các hộp giải thích của cô để nâng cấp kiến thức lên điểm 9-10 nhé! ✨";
+            } else {
+                textFeedback = "💪 CỐ LÊN NHÉ CON HỌC TRÒ NGOAN! Đừng nản chí nha, tiếng Anh cần luyện tập đều đặn mỗi ngày. Con hãy bấm nút 'Làm lại bài' phía dưới để luyện tập lại cho nhuần nhuyễn nha!";
+            }
+
+            document.getElementById('popupScoreDisplay').innerText = `${totalCorrect} / ${totalQuestions}`;
+            document.getElementById('popupFeedbackText').innerText = textFeedback;
+            document.getElementById('scoreModal').classList.add('active');
+        }
+
+        function resetQuizGame() {
+            document.getElementById('scoreModal').classList.remove('active');
+            userAnswers = {};
+            timeRemaining = 600;
+            isTimerRunning = false;
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('timerCtrlBtn').innerText = "BẮT ĐẦU TÍNH GIỜ LÀM BÀI";
+            document.getElementById('timeDisplay').innerText = "10:00";
+            
+            // Wipe out generated elements to recreate afresh with automated random shuffle patterns
+            document.getElementById('exercise2-questions').innerHTML = "";
+            document.getElementById('exercise3-questions').innerHTML = "";
+            document.getElementById('exercise4-questions').innerHTML = "";
+            document.getElementById('exercise5-questions').innerHTML = "";
+            
+            renderExercises();
+        }
+
+        // --- HTML5 CANVAS CONFETTI GRAPHICS FOR GAMIFICATION ---
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createConfettiParticle() {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                radius: Math.random() * 5 + 4,
+                density: Math.random() * canvas.height,
+                color: `hsl(${Math.random() * 360}, 90%, 60%)`,
+                tilt: Math.random() * 12 - 6,
+                tiltAngleIncremental: Math.random() * 0.06 + 0.03,
+                tiltAngle: 0
+            };
+        }
+
+        function triggerSingleConfettiBurst() {
+            for (let i = 0; i < 35; i++) {
+                particles.push(createConfettiParticle());
+            }
+        }
+
+        function triggerMassiveConfettiStorm() {
+            for (let i = 0; i < 150; i++) {
+                particles.push(createConfettiParticle());
+            }
+        }
+
+        function animateConfettiLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, idx) => {
+                p.tiltAngle += p.tiltAngleIncremental;
+                p.y += (Math.cos(p.density) + 3 + p.radius / 2) / 2;
+                p.x += Math.sin(p.tiltAngle);
+                p.tilt = Math.sin(p.tiltAngle - idx / 4) * 12;
+
+                if (p.y > canvas.height) {
+                    particles.splice(idx, 1);
+                }
+
+                ctx.beginPath();
+                ctx.lineWidth = p.radius;
+                ctx.strokeStyle = p.color;
+                ctx.moveTo(p.x + p.tilt + p.radius / 2, p.y);
+                ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.radius / 2);
+                ctx.stroke();
+            });
+            requestAnimationFrame(animateConfettiLoop);
+        }
+        requestAnimationFrame(animateConfettiLoop);
+
+        // Core initializer hook
+        window.onload = function() {
+            renderExercises();
+        };
+    </script>
+</body>
+</html>
